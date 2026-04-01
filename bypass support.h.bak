@@ -1,0 +1,35 @@
+//--------------------------------------//
+DWORD libanogsBase = 0;
+DWORD libanogsAlloc = 0;
+DWORD libanogsSize = 0;
+#define libanogs "libanogs.so"
+//---------------------------------------//
+DWORD libUE4Base = 0;
+DWORD libUE4Alloc = 0;
+DWORD libUE4Size = 0;
+#define libUE4 "libUE4.so"
+//--------------------------------------//
+//все что выше надо добавить в main.cpp примерно чуть выше войда мейн тхреад
+
+void *baipass_thread(void*) {
+do {
+sleep(1);
+} while (!isLibraryLoaded(OBFUSCATE("libanogs.so")));
+libanogsBase = findLibrary(OBFUSCATE("libanogs.so"));
+//hook or patch libanogs.so add here
+PATCH_LIB("libanogs.so", OBFUSCATE("0x00000"), "00 00 00 00 00"); //пример, //example
+//хук или патч libanogs.so сувать сюда
+do {
+sleep(1);
+} while (!isLibraryLoaded(OBFUSCATE("libUE4.so")));
+libUE4Base = findLibrary(OBFUSCATE("libUE4.so"));
+//hook or patch libUE4.so add here
+PATCH_LIB("libUE4.so", OBFUSCATE("0x00000"), "00 00 00 00 00"); //пример, //example
+//хук или патч libue4.so сувать сюда
+return 0;
+}
+
+__attribute__((constructor)) void _init() {
+pthread_t t;
+pthread_create(&t, 0, baipass_thread, 0);
+}
